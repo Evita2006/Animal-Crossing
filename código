@@ -54,3 +54,71 @@ class AdministracionIsla:
 
         self.log = {}
         self.misiones = ["Construye el Puente", "Alcanza 90 de motivación"]
+
+# =================== EVENTOS ===================
+    def evento_diario(self):
+        evento = random.choice(["festival", "lluvia", "visita", "nada"])
+
+        if evento == "festival":
+            self.motivacion = min(100, self.motivacion + 10)
+            print(" Festival en la isla (+10 motivación)")
+
+        elif evento == "lluvia":
+            self.motivacion = max(50, self.motivacion - 10)
+            print(" Lluvia intensa (-10 motivación)")
+
+        elif evento == "visita":
+            print("🛒 Comerciante visitante: intercambios mejorados hoy")
+
+    # =================== INICIAR PROYECTO ===================
+    def iniciar_proyecto(self, nombre, vecinos):
+        if nombre not in self.proyectos:
+            print("Proyecto no existe.")
+            return
+
+        if nombre in self.log and self.log[nombre]["estado"] == EN_CURSO:
+            print("Proyecto ya en curso.")
+            return
+
+        datos = self.proyectos[nombre]
+
+        if datos["req"]:
+            if datos["req"] not in self.log or self.log[datos["req"]]["estado"] != FINALIZADO:
+                print(f"Debes completar {datos['req']} primero.")
+                return
+
+        seleccion = [v for v in vecinos if v in self.vecinos and not self.vecinos[v]["ocupado"]]
+
+        if not seleccion:
+            print("No hay vecinos disponibles.")
+            return
+
+        eficiencia = sum(self.vecinos[v]["ef"] for v in seleccion[:datos["max"]])
+        tiempo_real = (datos["tiempo"] / eficiencia) * (100 / self.motivacion)
+
+        coste = int(tiempo_real * len(seleccion) * 100)
+
+        if self.recursos["Baya"] < coste:
+            print("No hay bayas suficientes.")
+            return
+
+        for r, c in datos["recursos"].items():
+            if self.recursos[r] < c:
+                print(f"Falta {r}")
+                return
+
+        for r, c in datos["recursos"].items():
+            self.recursos[r] -= c
+        self.recursos["Baya"] -= coste
+
+        for v in seleccion:
+            self.vecinos[v]["ocupado"] = True
+
+        self.log[nombre] = {
+            "estado": EN_CURSO,
+            "tiempo": tiempo_real,
+            "inicial": tiempo_real,
+            "vecinos": seleccion
+        }
+
+        print(f" Proyecto '{nombre}' iniciado. Coste: {coste} bayas.")
