@@ -1,0 +1,56 @@
+import os
+import random
+import json
+
+# =================== CONSTANTES ===================
+EN_CURSO = "EN CURSO"
+FINALIZADO = "FINALIZADO"
+PENDIENTE = "PENDIENTE"
+
+# =================== CLASE PRINCIPAL ===================
+class AdministracionIsla:
+
+    def __init__(self):
+        self.motivacion = 80
+        self.dia = 1
+        self.tasa_baya_base = 50  # 1 unidad de recurso = 50 Bayas
+
+        self.recursos = {
+            "Madera_Tier1": 100,
+            "Madera_Tier2": 50,
+            "Hierro": 40,
+            "Oro": 10,
+            "Piedra": 20,
+            "Baya": 5000
+        }
+
+        self.vecinos = {
+            "Canela": {"ef": 2.0, "fel": 80, "exp": 0, "ocupado": False, "rol": "Creativa"},
+            "Nook": {"ef": 1.5, "fel": 70, "exp": 0, "ocupado": False, "rol": "Comercial"},
+            "Tommy": {"ef": 1.0, "fel": 90, "exp": 0, "ocupado": False, "rol": "Ayudante"},
+            "Timmy": {"ef": 1.0, "fel": 85, "exp": 0, "ocupado": False, "rol": "Ayudante"},
+        }
+
+        self.proyectos = {
+            "Puente": {
+                "tiempo": 20,
+                "max": 3,
+                "req": None,
+                "recursos": {"Madera_Tier2": 20, "Hierro": 10}
+            },
+            "Tienda Nook": {
+                "tiempo": 30,
+                "max": 4,
+                "req": "Puente",
+                "recursos": {"Madera_Tier2": 30, "Oro": 5}
+            },
+            "Café Fígaro": {
+                "tiempo": 15,
+                "max": 2,
+                "req": None,
+                "recursos": {"Madera_Tier1": 15, "Oro": 3}
+            }
+        }
+
+        self.log = {}
+        self.misiones = ["Construye el Puente", "Alcanza 90 de motivación"]
