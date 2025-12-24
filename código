@@ -68,7 +68,7 @@ class AdministracionIsla:
             print(" Lluvia intensa (-10 motivación)")
 
         elif evento == "visita":
-            print("🛒 Comerciante visitante: intercambios mejorados hoy")
+            print(" Comerciante visitante: intercambios mejorados hoy")
 
     # =================== INICIAR PROYECTO ===================
     def iniciar_proyecto(self, nombre, vecinos):
