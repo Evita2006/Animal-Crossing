@@ -190,3 +190,101 @@ class AdministracionIsla:
         self.recursos["Baya"] += ganancia
 
         print(f" Vendiste {cantidad} de {recurso} por {ganancia} Bayas")
+
+# =================== ANALISIS DE EFICIENCIA (GREEDY) ===================
+    def analisis_eficiencia(self):
+        """
+        Algoritmo Greedy:
+        Selecciona siempre los vecinos libres con mayor eficiencia
+        para minimizar el tiempo del proyecto.
+        """
+
+        print("\n ANÁLISIS DE EFICIENCIA (GREEDY)")
+
+        vecinos_libres = {v: d for v, d in self.vecinos.items() if not d["ocupado"]}
+
+        if not vecinos_libres:
+            print("No hay vecinos libres.")
+            return
+
+        vecinos_ordenados = sorted(
+            vecinos_libres.items(),
+            key=lambda x: x[1]["ef"],
+            reverse=True
+        )
+
+        for nombre, datos in self.proyectos.items():
+
+            if nombre in self.log and self.log[nombre]["estado"] == FINALIZADO:
+                continue
+
+            seleccion = vecinos_ordenados[:datos["max"]]
+            eficiencia_total = sum(v[1]["ef"] for v in seleccion)
+            tiempo_estimado = (datos["tiempo"] / eficiencia_total) * (100 / self.motivacion)
+
+            nombres = ", ".join(v[0] for v in seleccion)
+
+            print(f"\nProyecto: {nombre}")
+            print(f"Vecinos recomendados: {nombres}")
+            print(f"Eficiencia total: {eficiencia_total:.2f}")
+            print(f"Tiempo estimado: {tiempo_estimado:.2f} horas")
+
+# =================== MENU ===================
+def menu():
+    isla = AdministracionIsla()
+
+    while True:
+        print("\nADMINISTRACIÓN DE ISLA")
+        print("1. Ver recursos")
+        print("2. Iniciar proyecto")
+        print("3. Avanzar tiempo")
+        print("4. Ver log")
+        print("5. Ver vecinos")
+        print("6. Intercambiar recursos por Bayas")
+        print("7. Análisis de eficiencia (Greedy)")
+        print("8. Salir")
+
+        op = input("Opción: ")
+
+        if op == "1":
+            for r, c in isla.recursos.items():
+                print(f"{r}: {c}")
+
+        elif op == "2":
+            print("Proyectos:")
+            for p in isla.proyectos:
+                print("-", p)
+            nombre = input("Proyecto: ")
+
+            isla.ver_vecinos()
+            vecinos = input("Vecinos (coma): ").split(",")
+
+            isla.iniciar_proyecto(nombre, [v.strip() for v in vecinos])
+
+        elif op == "3":
+            try:
+                h = float(input("Horas: "))
+                isla.avanzar(h)
+            except ValueError:
+                print("Entrada inválida.")
+
+        elif op == "4":
+            isla.ver_log()
+
+        elif op == "5":
+            isla.ver_vecinos()
+
+        elif op == "6":
+            isla.intercambiar_bayas()
+
+        elif op == "7":
+            isla.analisis_eficiencia()
+
+        elif op == "8":
+            print("Hasta pronto")
+            break
+
+        else:
+            print("Opción no válida.")
+
+menu()
