@@ -122,3 +122,71 @@ class AdministracionIsla:
         }
 
         print(f" Proyecto '{nombre}' iniciado. Coste: {coste} bayas.")
+# =================== AVANZAR TIEMPO ===================
+    def avanzar(self, horas):
+        self.dia += 1
+        self.evento_diario()
+
+        for nombre, p in self.log.items():
+            if p["estado"] == EN_CURSO:
+                p["tiempo"] -= horas
+
+                if p["tiempo"] <= 0:
+                    p["estado"] = FINALIZADO
+                    print(f" {nombre} finalizado")
+
+                    for v in p["vecinos"]:
+                        self.vecinos[v]["ocupado"] = False
+                        self.vecinos[v]["exp"] += 10
+                        self.vecinos[v]["fel"] = min(100, self.vecinos[v]["fel"] + 5)
+
+                    self.motivacion = min(100, self.motivacion + 5)
+
+    # =================== LOG ===================
+    def ver_log(self):
+        print("\n ESTADO DE LA ISLA")
+        print(f"Día {self.dia} | Motivación {self.motivacion}%")
+
+        for n, p in self.log.items():
+            if p["estado"] == EN_CURSO:
+                avance = 100 * (1 - p["tiempo"] / p["inicial"])
+                print(f"{n} → {avance:.1f}%")
+            else:
+                print(f"{n} FINALIZADO")
+
+    # =================== MOSTRAR VECINOS ===================
+    def ver_vecinos(self):
+        for v, d in self.vecinos.items():
+            estado = "OCUPADO" if d["ocupado"] else "LIBRE"
+            print(f"{v} | EF {d['ef']} | FEL {d['fel']} | EXP {d['exp']} | {estado}")
+
+    # =================== INTERCAMBIO POR BAYAS ===================
+    def intercambiar_bayas(self):
+        print("\n--- INTERCAMBIO: RECURSOS POR BAYAS ---")
+
+        recursos_vendibles = {k: v for k, v in self.recursos.items() if k != "Baya"}
+
+        for r, c in recursos_vendibles.items():
+            print(f"{r}: {c} (Tasa {self.tasa_baya_base} Bayas/unidad)")
+
+        recurso = input("Recurso a vender: ").strip()
+
+        if recurso not in recursos_vendibles:
+            print("Recurso no válido.")
+            return
+
+        try:
+            cantidad = int(input("Cantidad a vender: "))
+        except ValueError:
+            print("Cantidad inválida.")
+            return
+
+        if cantidad <= 0 or self.recursos[recurso] < cantidad:
+            print("Cantidad no disponible.")
+            return
+
+        ganancia = cantidad * self.tasa_baya_base
+        self.recursos[recurso] -= cantidad
+        self.recursos["Baya"] += ganancia
+
+        print(f" Vendiste {cantidad} de {recurso} por {ganancia} Bayas")
